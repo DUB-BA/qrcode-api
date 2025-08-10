@@ -17,10 +17,10 @@ RAPIDAPI_PROXY_SECRET = os.getenv("RAPIDAPI_PROXY_SECRET", "THIS_IS_MY_SECRET_KE
 MIN_CONTRAST_RATIO = 4.5 
 
 # --- SECURITY DEPENDENCY ---
-async def verify_secret(x_rapidapi_proxy_secret: str = Header(None)):
-    if not x_rapidapi_proxy_secret or x_rapidapi_proxy_secret != RAPIDAPI_PROXY_SECRET:
+async def verify_secret(x_api_secret: str = Header(None, alias="X-API-Secret")):
+    if not x_api_secret or x_api_secret != RAPIDAPI_PROXY_SECRET:
         raise HTTPException(status_code=403, detail="Forbidden: Invalid or missing secret key.")
-    return x_rapidapi_proxy_secret
+    return x_api_secret
 
 # --- NEW HELPER FUNCTIONS for COLOR VALIDATION ---
 def get_relative_luminance(rgb):
