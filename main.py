@@ -3,7 +3,7 @@
 # --- IMPORTS ---
 from fastapi import FastAPI, File, UploadFile, Form, Depends, Header, HTTPException
 from fastapi.responses import StreamingResponse
-from fastapi.middleware.cors import CORSMiddleware  # <-- Correctly imported
+from fastapi.middleware.cors import CORSMiddleware
 import qrcode
 from qrcode.image.styledpil import StyledPilImage
 from qrcode.image.styles.colormasks import SolidFillColorMask
@@ -14,7 +14,7 @@ from qrcode.image.styles.moduledrawers import GappedSquareModuleDrawer, RoundedM
 
 
 # --- CONFIGURATION ---
-RAPIDAPI_PROXY_SECRET = os.getenv("RAPIDAPI_PROXY_SECRET", "sUp3r-S3cr3t-Qu33n-b33-K3y-9z8y") # I updated the default here for safety
+RAPIDAPI_PROXY_SECRET = os.getenv("RAPIDAPI_PROXY_SECRET", "sUp3r-S3cr3t-Qu33n-b33-K3y-9z8y")
 MIN_CONTRAST_RATIO = 4.5
 
 # --- SECURITY DEPENDENCY ---
@@ -44,22 +44,21 @@ def check_color_contrast(color1_rgb, color2_rgb):
 app = FastAPI(
     title="Custom QR Code API",
     description="A professional-grade API to create custom QR codes with logos.",
-    version="1.1.0", # Bumped version for the new feature
+    version="1.1.1", # Final version bump for the fix
     dependencies=[Depends(verify_secret)]
 )
 
 # --- ADD CORS MIDDLEWARE ---
-# This is the new block that fixes the browser testing issue.
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allows all origins
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["*"],  # Allows all methods
-    allow_headers=["*"],  # Allows all headers
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # --- API ENDPOINTS ---
-@app.get("/generate-basic/", response_class=StreamingResponse, tags=["QR Code Generation"])
+@app.get("/generate-basic", response_class=StreamingResponse, tags=["QR Code Generation"]) # <-- FIX: Trailing slash removed
 def generate_basic_qr_code(url: str):
     img = qrcode.make(url)
     buf = io.BytesIO()
@@ -67,7 +66,7 @@ def generate_basic_qr_code(url: str):
     buf.seek(0)
     return StreamingResponse(buf, media_type="image/png")
 
-@app.post("/generate-custom/", response_class=StreamingResponse, tags=["QR Code Generation"])
+@app.post("/generate-custom", response_class=StreamingResponse, tags=["QR Code Generation"]) # <-- FIX: Trailing slash removed
 def generate_custom_qr_code(
     url: str = Form(...),
     logo_file: UploadFile = File(...),
